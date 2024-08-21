@@ -3,6 +3,7 @@ import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:vial_dashboard/screens/components/user_actions.dart';
 
 const double kPadding = 32.0;
 const double kSmallPadding = 15.0;
@@ -437,9 +438,53 @@ class _DashboardState extends State<Dashboard> {
           ),
         ],
       ),
-      trailing: IconButton(
+      trailing: PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert_rounded),
-        onPressed: () {},
+        itemBuilder: (context) => [
+          const PopupMenuItem<String>(
+            value: 'ver',
+            child: Row(
+              children: [
+                Icon(Icons.visibility, size: 20),
+                SizedBox(width: 8),
+                Text('Ver'),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'editar',
+            child: Row(
+              children: [
+                Icon(Icons.edit, size: 20),
+                SizedBox(width: 8),
+                Text('Editar'),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'eliminar',
+            child: Row(
+              children: [
+                Icon(Icons.delete, size: 20),
+                SizedBox(width: 8),
+                Text('Eliminar'),
+              ],
+            ),
+          ),
+        ],
+        onSelected: (value) {
+          switch (value) {
+            case 'ver':
+              viewUser(context, user);
+              break;
+            case 'editar':
+              editUser(context, user);
+              break;
+            case 'eliminar':
+              deleteUser(context, user);
+              break;
+          }
+        },
       ),
     );
   }
