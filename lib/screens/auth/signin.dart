@@ -120,7 +120,7 @@ class LoginPageState extends State<LoginPage> {
               userDoc.data() as Map<String, dynamic>?;
           String? role = userData?['role'];
 
-          if (role == 'Administrador') {
+          if (role == 'Colaborador') {
             if (mounted) {
               _showCustomDialogSignIn(
                   '¡Bienvenido!', 'Has iniciado sesión correctamente.', true);

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -59,32 +60,65 @@ class _CategoriesState extends State<Categories> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(kPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: kPadding),
-                _buildSubtitle(context),
-                const SizedBox(height: kPadding),
-                _buildSearchField(),
-                const SizedBox(height: kPadding),
-                _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : LayoutBuilder(
-                        builder: (context, constraints) {
-                          if (constraints.maxWidth > 900) {
-                            return _buildWideLayout();
-                          } else {
-                            return _buildNarrowLayout();
-                          }
-                        },
-                      ),
-              ],
-            ),
-          ),
+        child: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('users')
+              .doc(FirebaseAuth.instance.currentUser?.uid)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            if (!snapshot.hasData || snapshot.data == null) {
+              return const Center(
+                  child: Text('No se encontraron datos del usuario'));
+            }
+
+            final userData = snapshot.data!.data() as Map<String, dynamic>?;
+            final userRole = userData?['role'];
+
+            if (userRole != 'Administrador') {
+              return const Center(
+                child: Text(
+                  'Acceso denegado. Solo los administradores pueden ver el contenido de la página',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: primaryColor,
+                  ),
+                ),
+              );
+            }
+
+            return SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(kPadding),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildHeader(context),
+                    const SizedBox(height: kPadding),
+                    _buildSubtitle(context),
+                    const SizedBox(height: kPadding),
+                    _buildSearchField(),
+                    const SizedBox(height: kPadding),
+                    _isLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : LayoutBuilder(
+                            builder: (context, constraints) {
+                              if (constraints.maxWidth > 900) {
+                                return _buildWideLayout();
+                              } else {
+                                return _buildNarrowLayout();
+                              }
+                            },
+                          ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

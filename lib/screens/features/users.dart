@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 import 'package:vial_dashboard/screens/features/dashboard.dart';
@@ -22,19 +23,13 @@ class Users extends StatefulWidget {
 class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<Map<String, dynamic>>> _usersFuture;
+  String? _currentUserRole;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _usersFuture = FirebaseFirestore.instance
-        .collection('users')
-        .get()
-        .then((snapshot) => snapshot.docs.map((doc) {
-              final data = doc.data();
-              data['id'] = doc.id;
-              return data;
-            }).toList());
+    _getCurrentUserRole();
   }
 
   @override
@@ -43,14 +38,56 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<List<Map<String, dynamic>>> fetchUsers() async {
+  Future<void> _getCurrentUserRole() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      setState(() {
+        _currentUserRole = userData.data()?['role'];
+        _usersFuture = _fetchUsers();
+      });
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchUsers() async {
+    if (_currentUserRole != 'Administrador') {
+      return [];
+    }
     final usersSnapshot =
         await FirebaseFirestore.instance.collection('users').get();
-    return usersSnapshot.docs.map((doc) => doc.data()).toList();
+    return usersSnapshot.docs.map((doc) {
+      final data = doc.data();
+      data['id'] = doc.id;
+      return data;
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_currentUserRole == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_currentUserRole != 'Administrador') {
+      return const Scaffold(
+        body: Center(
+          child: Text(
+            'Acceso denegado. Solo los administradores pueden ver el contenido de la pagina',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: primaryColor,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -191,6 +228,9 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildUsersList() {
+    if (_currentUserRole != 'Administrador') {
+      return const Center(child: Text('Acceso denegado.'));
+    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -231,6 +271,9 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildUserListView(String userType) {
+    if (_currentUserRole != 'Administrador') {
+      return const Center(child: Text('Acceso denegado.'));
+    }
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _usersFuture,
       builder: (context, snapshot) {
@@ -408,6 +451,9 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildUserStats() {
+    if (_currentUserRole != 'Administrador') {
+      return const Center(child: Text('Acceso denegado.'));
+    }
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _usersFuture,
       builder: (context, snapshot) {
@@ -566,6 +612,9 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   }
 
   Widget _buildGraphCard() {
+    if (_currentUserRole != 'Administrador') {
+      return const Center(child: Text('Acceso denegado.'));
+    }
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,

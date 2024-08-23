@@ -4,6 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const double kPadding = 32.0;
 const double kSmallPadding = 15.0;
@@ -65,50 +66,87 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(kPadding),
-            child: FutureBuilder<List<UserData>>(
-              future: _usersFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text('No hay usuarios disponibles'));
-                } else {
-                  final users = snapshot.data!;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(context),
-                      const SizedBox(height: kPadding),
-                      _buildSubtitle(context),
-                      const SizedBox(height: kPadding),
-                      _buildSearchField(),
-                      const SizedBox(height: kPadding),
-                      LayoutBuilder(
-                        builder: (context, constraints) {
-                          if (constraints.maxWidth > 900) {
-                            return _buildWideLayout(users);
-                          } else {
-                            return _buildNarrowLayout(users);
-                          }
-                        },
-                      ),
-                    ],
-                  );
-                }
-              },
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(FirebaseAuth.instance.currentUser?.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Scaffold(
+            body: Center(child: Text('No se encontraron datos del usuario')),
+          );
+        }
+
+        final userData = snapshot.data!.data() as Map<String, dynamic>?;
+        final userRole = userData?['role'];
+
+        if (userRole != 'Administrador') {
+          return const Scaffold(
+            body: Center(
+              child: Text(
+                'Acceso denegado. Solo los administradores pueden ver el contenido de la pagina',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  color: primaryColor,
+                ),
+              ),
+            ),
+          );
+        }
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(kPadding),
+                child: FutureBuilder<List<UserData>>(
+                  future: _usersFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text('No hay usuarios disponibles'));
+                    } else {
+                      final users = snapshot.data!;
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildHeader(context),
+                          const SizedBox(height: kPadding),
+                          _buildSubtitle(context),
+                          const SizedBox(height: kPadding),
+                          _buildSearchField(),
+                          const SizedBox(height: kPadding),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              if (constraints.maxWidth > 900) {
+                                return _buildWideLayout(users);
+                              } else {
+                                return _buildNarrowLayout(users);
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 

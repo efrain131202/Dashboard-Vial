@@ -33,8 +33,15 @@ class Profile extends StatelessWidget {
 
             if (userRole != 'Administrador') {
               return const Center(
-                  child: Text(
-                      'Acceso denegado. Solo los usuarios administradores pueden ver el perfil.'));
+                child: Text(
+                  'Acceso denegado. Solo los administradores pueden ver el contenido de la pagina',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                    color: primaryColor,
+                  ),
+                ),
+              );
             }
 
             return Center(
