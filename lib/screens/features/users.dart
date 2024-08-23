@@ -3,6 +3,8 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
+import 'package:vial_dashboard/screens/components/user_actions.dart';
+import 'package:vial_dashboard/screens/features/dashboard.dart';
 
 const double kPadding = 32.0;
 const double kSmallPadding = 15.0;
@@ -296,6 +298,15 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
         borderColor = Colors.grey;
     }
 
+    UserData userData = UserData(
+      uid: user['id'],
+      displayName: user['display_name'] ?? '',
+      email: user['email'] ?? '',
+      role: user['role'] ?? '',
+      createdTime: (user['created_time'] as Timestamp).toDate(),
+      photoUrl: user['photo_url'],
+    );
+
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       leading: Container(
@@ -345,9 +356,53 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
           ),
         ],
       ),
-      trailing: IconButton(
+      trailing: PopupMenuButton<String>(
         icon: const Icon(Icons.more_vert_rounded, size: 16),
-        onPressed: () {},
+        itemBuilder: (context) => [
+          const PopupMenuItem<String>(
+            value: 'ver',
+            child: Row(
+              children: [
+                Icon(Icons.visibility, size: 20),
+                SizedBox(width: 8),
+                Text('Ver'),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'editar',
+            child: Row(
+              children: [
+                Icon(Icons.edit, size: 20),
+                SizedBox(width: 8),
+                Text('Editar'),
+              ],
+            ),
+          ),
+          const PopupMenuItem<String>(
+            value: 'eliminar',
+            child: Row(
+              children: [
+                Icon(Icons.delete, size: 20),
+                SizedBox(width: 8),
+                Text('Eliminar'),
+              ],
+            ),
+          ),
+        ],
+        onSelected: (value) {
+          switch (value) {
+            case 'ver':
+              viewUser(context, userData);
+              break;
+            case 'editar':
+              editUser(context, userData);
+              break;
+            case 'eliminar':
+              deleteUser(context, userData);
+              break;
+          }
+        },
       ),
     );
   }
