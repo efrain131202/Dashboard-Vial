@@ -314,7 +314,7 @@ class _DashboardState extends State<Dashboard> {
                   title: Text(user.displayName),
                   subtitle: Text(user.email),
                   trailing: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert_rounded),
+                    icon: const Icon(Icons.more_vert_rounded, size: 15),
                     itemBuilder: (context) => [
                       const PopupMenuItem<String>(
                         value: 'ver',
@@ -603,7 +603,7 @@ class _DashboardState extends State<Dashboard> {
         ],
       ),
       trailing: PopupMenuButton<String>(
-        icon: const Icon(Icons.more_vert_rounded),
+        icon: const Icon(Icons.more_vert_rounded, size: 15),
         itemBuilder: (context) => [
           const PopupMenuItem<String>(
             value: 'ver',

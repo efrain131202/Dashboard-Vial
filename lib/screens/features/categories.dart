@@ -565,7 +565,7 @@ class CategoryUsersScreen extends StatelessWidget {
                   title: Text(userData['display_name'] ?? 'Usuario sin nombre'),
                   subtitle: Text(userData['email'] ?? 'Sin correo electrónico'),
                   trailing: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert),
+                    icon: const Icon(Icons.more_vert_rounded, size: 15),
                     onSelected: (String result) {
                       final user = UserData(
                         uid: snapshot.data!.docs[index].id,
