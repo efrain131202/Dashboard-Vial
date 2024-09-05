@@ -25,24 +25,17 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<Map<String, dynamic>>> _usersFuture;
   String? _currentUserRole;
-  List<Map<String, dynamic>> _allUsers = [];
-  List<Map<String, dynamic>> _filteredUsers = [];
-  final TextEditingController _searchController = TextEditingController();
-  bool _showSuggestions = false;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _getCurrentUserRole();
-    _searchController.addListener(_onSearchChanged);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _searchController.removeListener(_onSearchChanged);
-    _searchController.dispose();
     super.dispose();
   }
 
@@ -66,32 +59,18 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
     }
     final usersSnapshot =
         await FirebaseFirestore.instance.collection('users').get();
-    _allUsers = usersSnapshot.docs.map((doc) {
+    return usersSnapshot.docs.map((doc) {
       final data = doc.data();
       data['id'] = doc.id;
       return data;
     }).toList();
-    _filteredUsers = List.from(_allUsers);
-    return _allUsers;
-  }
-
-  void _onSearchChanged() {
-    final query = _searchController.text.toLowerCase();
-    setState(() {
-      _filteredUsers = _allUsers
-          .where((user) =>
-              user['display_name'].toString().toLowerCase().contains(query) ||
-              user['email'].toString().toLowerCase().contains(query) ||
-              user['role'].toString().toLowerCase().contains(query))
-          .toList();
-      _showSuggestions = query.isNotEmpty;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     if (_currentUserRole == null) {
       return const Scaffold(
+        backgroundColor: Colors.white,
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -124,18 +103,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
                 const SizedBox(height: kPadding),
                 _buildSubtitle(context),
                 const SizedBox(height: kPadding),
-                buildSearchField(
-                  searchController: _searchController,
-                  showSuggestions: _showSuggestions,
-                  filteredUsers: _filteredUsers,
-                  onSearch: _onSearchChanged,
-                  onUserTap: (user) {
-                    setState(() {
-                      _searchController.text = user['display_name'];
-                      _showSuggestions = false;
-                    });
-                  },
-                ),
+                const SearchableUserList(),
                 const SizedBox(height: kPadding),
                 LayoutBuilder(
                   builder: (context, constraints) {

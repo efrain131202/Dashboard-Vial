@@ -29,7 +29,7 @@ void exitApp(BuildContext context) {
               ),
               const SizedBox(height: 16),
               Text(
-                '¿Estás seguro de que quieres cerrar sesión y salir de la aplicación?',
+                '¿Estás seguro de que quieres salir de la aplicación?',
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -53,7 +53,7 @@ void exitApp(BuildContext context) {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text('Cerrar sesión y Salir'),
+                child: const Text('Salir'),
               ),
             ],
           ),

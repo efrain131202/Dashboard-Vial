@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/components/user_edit_screen.dart';
+import 'package:vial_dashboard/screens/features/dashboard.dart';
 
 const double kPadding = 16.0;
 const Color primaryColor = Color(0xFF05A7A7);
@@ -34,7 +36,7 @@ class Profile extends StatelessWidget {
             if (userRole != 'Administrador') {
               return const Center(
                 child: Text(
-                  'Acceso denegado. Solo los administradores pueden ver el contenido de la pagina',
+                  'Acceso denegado. Solo los administradores pueden ver el contenido de la página',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 15,
@@ -48,7 +50,7 @@ class Profile extends StatelessWidget {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(kPadding),
-                  child: _buildUserProfile(userData),
+                  child: _buildUserProfile(context, userData),
                 ),
               ),
             );
@@ -58,7 +60,8 @@ class Profile extends StatelessWidget {
     );
   }
 
-  Widget _buildUserProfile(Map<String, dynamic>? userData) {
+  Widget _buildUserProfile(
+      BuildContext context, Map<String, dynamic>? userData) {
     if (userData == null) {
       return const Center(child: Text('No se ha encontrado usuario'));
     }
@@ -105,7 +108,7 @@ class Profile extends StatelessWidget {
         SizedBox(
           width: 200,
           child: ElevatedButton(
-            onPressed: () {},
+            onPressed: () => _navigateToEditProfile(context, userData),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               padding: const EdgeInsets.symmetric(vertical: 12),
@@ -147,5 +150,37 @@ class Profile extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  void _navigateToEditProfile(
+      BuildContext context, Map<String, dynamic> userData) async {
+    final user = UserData(
+      uid: FirebaseAuth.instance.currentUser?.uid ?? '',
+      displayName: userData['display_name'] ?? '',
+      email: userData['email'] ?? '',
+      role: userData['role'] ?? '',
+      createdTime:
+          (userData['created_time'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      photoUrl: userData['photo_url'] ?? '',
+    );
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => UserEditScreen(user: user),
+      ),
+    );
+
+    if (result != null && result is UserData) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(result.uid)
+          .update({
+        'display_name': result.displayName,
+        'email': result.email,
+        'role': result.role,
+        'photo_url': result.photoUrl,
+      });
+    }
   }
 }

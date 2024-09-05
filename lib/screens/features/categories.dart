@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 import 'package:vial_dashboard/screens/features/dashboard.dart';
 
@@ -103,7 +104,7 @@ class _CategoriesState extends State<Categories> {
                     const SizedBox(height: kPadding),
                     _buildSubtitle(context),
                     const SizedBox(height: kPadding),
-                    _buildSearchField(),
+                    const SearchableUserList(),
                     const SizedBox(height: kPadding),
                     _isLoading
                         ? const Center(child: CircularProgressIndicator())
@@ -209,30 +210,6 @@ class _CategoriesState extends State<Categories> {
     );
   }
 
-  Widget _buildSearchField() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Buscar...',
-        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-        border: InputBorder.none,
-        fillColor: Colors.white,
-        filled: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: kSmallPadding),
-        prefixIcon:
-            Icon(Icons.search_rounded, color: Colors.grey[400], size: 20),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCategoriesList() {
     return Container(
       decoration: BoxDecoration(
@@ -323,7 +300,7 @@ class _CategoriesState extends State<Categories> {
       subtitle: Text('${category['userCount']} usuarios',
           style: TextStyle(fontSize: 14, color: Colors.grey[600])),
       trailing: IconButton(
-        icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+        icon: const Icon(Icons.arrow_forward_ios_rounded, size: 15),
         onPressed: () {
           Navigator.push(
             context,
@@ -485,7 +462,6 @@ class FunctionalGraphPainter extends CustomPainter {
     paint.color = primaryColor;
     canvas.drawPath(path, paint);
 
-    // Dibujar puntos en cada categoría
     final dotPaint = Paint()
       ..color = primaryColor
       ..style = PaintingStyle.fill;
@@ -497,7 +473,6 @@ class FunctionalGraphPainter extends CustomPainter {
       canvas.drawCircle(Offset(x, y), 4, dotPaint);
     }
 
-    // Dibujar etiquetas de categorías
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
     );

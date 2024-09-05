@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vial_dashboard/screens/components/search_field.dart';
 
 const double kPadding = 32.0;
 const double kSmallPadding = 15.0;
@@ -23,7 +24,7 @@ class Support extends StatelessWidget {
                 const SizedBox(height: kPadding),
                 _buildSubtitle(context),
                 const SizedBox(height: kPadding),
-                _buildSearchField(),
+                const SearchableUserList(),
                 const SizedBox(height: kPadding),
                 LayoutBuilder(
                   builder: (context, constraints) {
@@ -95,30 +96,6 @@ class Support extends StatelessWidget {
     );
   }
 
-  Widget _buildSearchField() {
-    return TextField(
-      decoration: InputDecoration(
-        hintText: 'Buscar...',
-        hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-        border: InputBorder.none,
-        fillColor: Colors.white,
-        filled: true,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: kSmallPadding),
-        prefixIcon:
-            Icon(Icons.search_rounded, color: Colors.grey[400], size: 20),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.grey[300]!, width: 1),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30),
-          borderSide: BorderSide(color: Colors.grey[400]!, width: 1),
-        ),
-      ),
-    );
-  }
-
   Widget _buildSupportTicketsList() {
     return Container(
       decoration: BoxDecoration(
@@ -142,9 +119,7 @@ class Support extends StatelessWidget {
                   ),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // Ver todos los tickets
-                  },
+                  onPressed: () {},
                   child: const Text('Ver todos',
                       style: TextStyle(color: primaryColor)),
                 ),
@@ -231,10 +206,8 @@ class Support extends StatelessWidget {
         ],
       ),
       trailing: IconButton(
-        icon: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-        onPressed: () {
-          // Implementar acción para ver detalles del ticket
-        },
+        icon: const Icon(Icons.arrow_forward_ios_rounded, size: 15),
+        onPressed: () {},
       ),
     );
   }
