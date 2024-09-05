@@ -338,7 +338,7 @@ class _CategoriesState extends State<Categories> {
             _buildStatItem('Total Categorías', serviceCount.length.toString(),
                 Icons.business_rounded),
             _buildStatItem('Usuarios Totales', totalCollaborators.toString(),
-                Icons.people_rounded),
+                Icons.people_alt_rounded),
             _buildStatItem(
                 'Categoría Popular',
                 serviceCount.isEmpty

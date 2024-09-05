@@ -476,7 +476,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
                 ),
                 const SizedBox(height: 20),
                 _buildStatItem('Total Usuarios', totalUsers.toString(),
-                    Icons.people_rounded),
+                    Icons.people_alt_rounded),
                 _buildStatItem('Nuevos este mes', newUsersThisMonth.toString(),
                     Icons.person_add_rounded),
                 _buildStatItem('Usuarios activos', '$activeUsersPercentage%',

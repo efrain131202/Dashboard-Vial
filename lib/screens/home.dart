@@ -19,7 +19,7 @@ class HomePageState extends State<HomePage> {
 
   final List<NavItem> _navItems = [
     NavItem(icon: Icons.dashboard_rounded, title: 'Panel'),
-    NavItem(icon: Icons.people_rounded, title: 'Usuarios'),
+    NavItem(icon: Icons.people_alt_rounded, title: 'Usuarios'),
     NavItem(icon: Icons.business_rounded, title: 'Categorías'),
     NavItem(icon: Icons.forum_rounded, title: 'Soporte'),
     NavItem(icon: Icons.account_circle_rounded, title: 'Perfil'),
