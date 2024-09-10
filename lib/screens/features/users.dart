@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
-import 'package:vial_dashboard/screens/features/dashboard.dart';
+import 'package:vial_dashboard/screens/components/user_data.dart';
 
 const double kPadding = 32.0;
 const double kSmallPadding = 15.0;

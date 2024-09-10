@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:vial_dashboard/screens/features/dashboard.dart';
+import 'package:vial_dashboard/screens/components/user_data.dart';
 
 class UserDetailsScreen extends StatelessWidget {
   final UserData user;

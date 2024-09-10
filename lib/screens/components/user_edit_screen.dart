@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vial_dashboard/screens/features/dashboard.dart';
+import 'package:vial_dashboard/screens/components/user_data.dart';
 
 class UserEditScreen extends StatefulWidget {
   final UserData? user;

@@ -3,10 +3,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
-import 'package:vial_dashboard/screens/features/dashboard.dart';
+import 'package:vial_dashboard/screens/components/user_data.dart';
 
 class SearchableUserList extends StatefulWidget {
-  const SearchableUserList({Key? key}) : super(key: key);
+  const SearchableUserList({super.key});
 
   @override
   _SearchableUserListState createState() => _SearchableUserListState();
