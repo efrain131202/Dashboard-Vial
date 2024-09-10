@@ -3,16 +3,11 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/components/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 import 'package:vial_dashboard/screens/components/user_data.dart';
-
-const double kPadding = 32.0;
-const double kSmallPadding = 15.0;
-const Color primaryColor = Color(0xFF05A7A7);
-const Color secondaryColor = Color(0xFFF2877C);
-const Color adminColor = Color(0xFF5AED9D);
 
 class Users extends StatefulWidget {
   const Users({super.key});

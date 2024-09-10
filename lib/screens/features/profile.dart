@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/components/constants.dart';
 import 'package:vial_dashboard/screens/components/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_edit_screen.dart';
-
-const double kPadding = 16.0;
-const Color primaryColor = Color(0xFF05A7A7);
 
 class Profile extends StatelessWidget {
   const Profile({super.key});
