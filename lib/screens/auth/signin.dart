@@ -4,7 +4,6 @@ import 'package:logger/logger.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/home.dart';
 import 'package:vial_dashboard/screens/auth/reset.dart';
-import 'package:vial_dashboard/screens/auth/signup.dart';
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -155,13 +154,6 @@ class LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _goToSignUpPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SignUpPage()),
-    );
-  }
-
   void _goToForgotPasswordPage() {
     Navigator.push(
       context,
@@ -269,23 +261,6 @@ class LoginPageState extends State<LoginPage> {
                           child: const Text('Iniciar Sesión'),
                         ),
                         const SizedBox(height: 20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text('¿No tienes cuenta?'),
-                            TextButton(
-                              onPressed: _goToSignUpPage,
-                              child: const Text(
-                                'Crear cuenta',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 10),
                         TextButton(
                           onPressed: _goToForgotPasswordPage,
                           child: const Text(
