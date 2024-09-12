@@ -5,7 +5,7 @@ class UserData {
   final String displayName;
   final String email;
   final String role;
-  final DateTime createdTime;
+  final DateTime? createdTime; // Ahora es nullable
   final String? photoUrl;
 
   UserData({
@@ -13,7 +13,7 @@ class UserData {
     required this.displayName,
     required this.email,
     required this.role,
-    required this.createdTime,
+    this.createdTime, // Ya no es required
     this.photoUrl,
   });
 
@@ -24,7 +24,9 @@ class UserData {
       displayName: data['display_name'] ?? '',
       email: data['email'] ?? '',
       role: data['role'] ?? '',
-      createdTime: (data['created_time'] as Timestamp).toDate(),
+      createdTime: data['created_time'] != null
+          ? (data['created_time'] as Timestamp).toDate()
+          : null,
       photoUrl: data['photo_url'],
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:intl/intl.dart';
 
 class UserDetailsScreen extends StatelessWidget {
   final UserData user;
@@ -66,7 +67,7 @@ class UserDetailsScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Creado: ${user.createdTime.toLocal().toString()}',
+              'Creado: ${_formatDate(user.createdTime)}',
               style: const TextStyle(
                 fontSize: 16,
                 color: Colors.grey,
@@ -76,5 +77,10 @@ class UserDetailsScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return 'Fecha desconocida';
+    return DateFormat('dd/MM/yyyy HH:mm').format(date.toLocal());
   }
 }

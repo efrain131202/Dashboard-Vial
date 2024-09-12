@@ -53,11 +53,11 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyBCVXaF5O6c22i36bfQkIXupatiFRcy25s',
-    appId: '1:119218218386:web:a44a71e9d0abf085860d4b',
-    messagingSenderId: '119218218386',
-    projectId: 'vial-dashboard-8915b',
-    authDomain: 'vial-dashboard-8915b.firebaseapp.com',
-    storageBucket: 'vial-dashboard-8915b.appspot.com',
+    apiKey: 'AIzaSyCtg3oqneAQhfKjNbUNRYKjlX-YNz2KZ1o',
+    appId: '1:76064519047:web:b76283cac1948e94949922',
+    messagingSenderId: '76064519047',
+    projectId: 'prueba-ygnwgx',
+    authDomain: 'prueba-ygnwgx.firebaseapp.com',
+    storageBucket: 'prueba-ygnwgx.appspot.com',
   );
 }

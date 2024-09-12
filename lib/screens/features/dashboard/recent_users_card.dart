@@ -12,7 +12,12 @@ class RecentUsersCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     List<UserData> recentUsers = List.from(users)
-      ..sort((a, b) => b.createdTime.compareTo(a.createdTime));
+      ..sort((a, b) {
+        if (a.createdTime == null && b.createdTime == null) return 0;
+        if (a.createdTime == null) return 1;
+        if (b.createdTime == null) return -1;
+        return b.createdTime!.compareTo(a.createdTime!);
+      });
     recentUsers = recentUsers.take(5).toList();
 
     return Container(
@@ -165,5 +170,9 @@ class RecentUsersCard extends StatelessWidget {
         },
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
   }
 }
