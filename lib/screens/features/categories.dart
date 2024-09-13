@@ -6,6 +6,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/features/categories/category_distribution_card.dart';
+import 'package:vial_dashboard/screens/features/categories/recent_categories_card.dart';
+import 'package:vial_dashboard/screens/features/categories/statistics_card.dart';
 
 class Categories extends StatefulWidget {
   const Categories({super.key});
@@ -17,7 +20,6 @@ class Categories extends StatefulWidget {
 class _CategoriesState extends State<Categories> {
   Map<String, int> serviceCount = {};
   int totalCollaborators = 0;
-  bool _isLoading = true;
 
   @override
   void initState() {
@@ -45,11 +47,6 @@ class _CategoriesState extends State<Categories> {
       setState(() {
         serviceCount = counts;
         totalCollaborators = collaboratorCount;
-        _isLoading = false;
-      });
-    } else {
-      setState(() {
-        _isLoading = false;
       });
     }
   }
@@ -102,17 +99,15 @@ class _CategoriesState extends State<Categories> {
                     const SizedBox(height: kPadding),
                     const SearchableUserList(),
                     const SizedBox(height: kPadding),
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : LayoutBuilder(
-                            builder: (context, constraints) {
-                              if (constraints.maxWidth > 900) {
-                                return _buildWideLayout();
-                              } else {
-                                return _buildNarrowLayout();
-                              }
-                            },
-                          ),
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth > 900) {
+                          return _buildWideLayout();
+                        } else {
+                          return _buildNarrowLayout();
+                        }
+                      },
+                    ),
                   ],
                 ),
               ),
@@ -129,16 +124,25 @@ class _CategoriesState extends State<Categories> {
       children: [
         Expanded(
           flex: 2,
-          child: _buildCategoriesList(),
+          child: RecentCategoriesCard(
+            onCategoryTap: (category) {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CategoryUsersScreen(category: category),
+                ),
+              );
+            },
+          ),
         ),
         const SizedBox(width: 20),
         Expanded(
           flex: 1,
           child: Column(
             children: [
-              _buildCategoryStats(),
+              const StatisticsCard(),
               const SizedBox(height: 20),
-              _buildGraphCard(),
+              CategoryDistributionCard(serviceCount: serviceCount),
             ],
           ),
         ),
@@ -149,11 +153,20 @@ class _CategoriesState extends State<Categories> {
   Widget _buildNarrowLayout() {
     return Column(
       children: [
-        _buildCategoriesList(),
+        RecentCategoriesCard(
+          onCategoryTap: (category) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CategoryUsersScreen(category: category),
+              ),
+            );
+          },
+        ),
         const SizedBox(height: 20),
-        _buildCategoryStats(),
+        const StatisticsCard(),
         const SizedBox(height: 20),
-        _buildGraphCard(),
+        CategoryDistributionCard(serviceCount: serviceCount),
       ],
     );
   }
@@ -205,288 +218,6 @@ class _CategoriesState extends State<Categories> {
       style: TextStyle(color: Colors.grey[600]),
     );
   }
-
-  Widget _buildCategoriesList() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Categorías Recientes',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Ver todas las categorías
-                  },
-                  child: const Text('Ver todas',
-                      style: TextStyle(color: primaryColor)),
-                ),
-              ],
-            ),
-          ),
-          ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: serviceCount.length,
-            separatorBuilder: (context, index) => const Divider(height: 1),
-            itemBuilder: (context, index) {
-              final service = serviceCount.keys.toList()[index];
-              final count = serviceCount[service]!;
-              return _buildCategoryListTile({
-                'name': service,
-                'icon': _getIconForService(service),
-                'userCount': count,
-              });
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  IconData _getIconForService(String service) {
-    switch (service.toLowerCase()) {
-      case 'bateria':
-        return Icons.battery_full_rounded;
-      case 'talachería':
-        return Icons.build_rounded;
-      case 'grua':
-        return Icons.local_shipping_rounded;
-      case 'mecanico':
-        return Icons.engineering_rounded;
-      case 'cerrajero':
-        return Icons.vpn_key_rounded;
-      case 'gasolina':
-        return Icons.local_gas_station_rounded;
-      default:
-        return Icons.miscellaneous_services_rounded;
-    }
-  }
-
-  Widget _buildCategoryListTile(Map<String, dynamic> category) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-      leading: Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          color: primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(category['icon'], color: primaryColor),
-      ),
-      title: Text(
-        category['name'],
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
-      subtitle: Text('${category['userCount']} usuarios',
-          style: TextStyle(fontSize: 14, color: Colors.grey[600])),
-      trailing: IconButton(
-        icon: const Icon(Icons.arrow_forward_ios_rounded, size: 15),
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CategoryUsersScreen(category: category['name']),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildCategoryStats() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Estadísticas',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildStatItem('Total Categorías', serviceCount.length.toString(),
-                Icons.business_rounded),
-            _buildStatItem('Usuarios Totales', totalCollaborators.toString(),
-                Icons.people_alt_rounded),
-            _buildStatItem(
-                'Categoría Popular',
-                serviceCount.isEmpty
-                    ? 'N/A'
-                    : serviceCount.entries
-                        .reduce((a, b) => a.value > b.value ? a : b)
-                        .key,
-                Icons.star_rounded),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStatItem(String label, String value, IconData icon) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: primaryColor.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: primaryColor, size: 24),
-          ),
-          const SizedBox(width: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGraphCard() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(color: Colors.grey[300]!),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Distribución de Categorías',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 20),
-            _buildFunctionalGraph(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFunctionalGraph() {
-    return SizedBox(
-      height: 195,
-      child: CustomPaint(
-        size: Size.infinite,
-        painter: FunctionalGraphPainter(serviceCount),
-      ),
-    );
-  }
-}
-
-class FunctionalGraphPainter extends CustomPainter {
-  final Map<String, int> serviceCount;
-
-  FunctionalGraphPainter(this.serviceCount);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (serviceCount.isEmpty) return;
-
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3;
-
-    final maxCount = serviceCount.values.reduce((a, b) => a > b ? a : b);
-    final categories = serviceCount.keys.toList();
-    final stepX = size.width / (categories.length - 1);
-
-    final path = Path();
-    for (int i = 0; i < categories.length; i++) {
-      final x = i * stepX;
-      final y =
-          size.height - (serviceCount[categories[i]]! / maxCount) * size.height;
-
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
-      }
-    }
-
-    paint.color = primaryColor;
-    canvas.drawPath(path, paint);
-
-    final dotPaint = Paint()
-      ..color = primaryColor
-      ..style = PaintingStyle.fill;
-
-    for (int i = 0; i < categories.length; i++) {
-      final x = i * stepX;
-      final y =
-          size.height - (serviceCount[categories[i]]! / maxCount) * size.height;
-      canvas.drawCircle(Offset(x, y), 4, dotPaint);
-    }
-
-    final textPainter = TextPainter(
-      textDirection: TextDirection.ltr,
-    );
-
-    for (int i = 0; i < categories.length; i++) {
-      final x = i * stepX;
-      textPainter.text = TextSpan(
-        text: categories[i],
-        style: const TextStyle(color: Colors.black, fontSize: 10),
-      );
-      textPainter.layout();
-      textPainter.paint(
-          canvas, Offset(x - textPainter.width / 2, size.height + 5));
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
 class CategoryUsersScreen extends StatelessWidget {

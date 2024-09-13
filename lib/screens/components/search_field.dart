@@ -17,6 +17,9 @@ class _SearchableUserListState extends State<SearchableUserList> {
   List<UserData> _allUsers = [];
   List<UserData> _filteredUsers = [];
   bool _showSuggestions = false;
+  bool _isLoading = true;
+  bool _hasError = false;
+  bool _mounted = true;
 
   @override
   void initState() {
@@ -29,25 +32,52 @@ class _SearchableUserListState extends State<SearchableUserList> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
+    _mounted = false;
     super.dispose();
   }
 
   Future<void> _fetchUsers() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+    if (!_mounted) return;
 
-      if (userData.data()?['role'] == 'Administrador') {
-        final usersSnapshot =
-            await FirebaseFirestore.instance.collection('users').get();
+    setState(() {
+      _isLoading = true;
+      _hasError = false;
+    });
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userData = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (userData.data()?['role'] == 'Administrador') {
+          final usersSnapshot =
+              await FirebaseFirestore.instance.collection('users').get();
+          if (_mounted) {
+            setState(() {
+              _allUsers = usersSnapshot.docs
+                  .map((doc) => UserData.fromDocument(doc))
+                  .toList();
+              _filteredUsers = List.from(_allUsers);
+              _isLoading = false;
+            });
+          }
+        } else {
+          if (_mounted) {
+            setState(() {
+              _isLoading = false;
+              _hasError = true;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      if (_mounted) {
         setState(() {
-          _allUsers = usersSnapshot.docs
-              .map((doc) => UserData.fromDocument(doc))
-              .toList();
-          _filteredUsers = List.from(_allUsers);
+          _isLoading = false;
+          _hasError = true;
         });
       }
     }
@@ -72,7 +102,13 @@ class _SearchableUserListState extends State<SearchableUserList> {
       children: [
         _buildSearchField(),
         const SizedBox(height: 10),
-        _showSuggestions ? _buildSuggestionsList() : Container(),
+        _isLoading
+            ? CircularProgressIndicator()
+            : _hasError
+                ? _buildErrorWidget()
+                : _showSuggestions
+                    ? _buildSuggestionsList()
+                    : Container(),
       ],
     );
   }
@@ -117,79 +153,98 @@ class _SearchableUserListState extends State<SearchableUserList> {
           ),
         ],
       ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        itemCount: _filteredUsers.length > 5 ? 5 : _filteredUsers.length,
-        separatorBuilder: (context, index) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final user = _filteredUsers[index];
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundImage: user.photoUrl != null
-                  ? CachedNetworkImageProvider(user.photoUrl!)
-                  : null,
-              child: user.photoUrl == null
-                  ? Text(user.displayName[0].toUpperCase())
-                  : null,
-            ),
-            title: Text(user.displayName),
-            subtitle: Text(user.email),
-            trailing: PopupMenuButton<String>(
-              icon: const Icon(Icons.more_vert_rounded, size: 15),
-              itemBuilder: (context) => [
-                const PopupMenuItem<String>(
-                  value: 'ver',
-                  child: Row(
-                    children: [
-                      Icon(Icons.visibility_rounded, size: 20),
-                      SizedBox(width: 8),
-                      Text('Ver'),
-                    ],
+      child: _filteredUsers.isEmpty
+          ? ListTile(
+              title: Text('No se encontraron usuarios'),
+            )
+          : ListView.separated(
+              shrinkWrap: true,
+              itemCount: _filteredUsers.length > 5 ? 5 : _filteredUsers.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                final user = _filteredUsers[index];
+                return ListTile(
+                  leading: CircleAvatar(
+                    backgroundImage: user.photoUrl != null
+                        ? CachedNetworkImageProvider(user.photoUrl!)
+                        : null,
+                    child: user.photoUrl == null
+                        ? Text(user.displayName[0].toUpperCase())
+                        : null,
                   ),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'editar',
-                  child: Row(
-                    children: [
-                      Icon(Icons.edit_rounded, size: 20),
-                      SizedBox(width: 8),
-                      Text('Editar'),
+                  title: Text(user.displayName),
+                  subtitle: Text(user.email),
+                  trailing: PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert_rounded, size: 15),
+                    itemBuilder: (context) => [
+                      const PopupMenuItem<String>(
+                        value: 'ver',
+                        child: Row(
+                          children: [
+                            Icon(Icons.visibility_rounded, size: 20),
+                            SizedBox(width: 8),
+                            Text('Ver'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'editar',
+                        child: Row(
+                          children: [
+                            Icon(Icons.edit_rounded, size: 20),
+                            SizedBox(width: 8),
+                            Text('Editar'),
+                          ],
+                        ),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'eliminar',
+                        child: Row(
+                          children: [
+                            Icon(Icons.delete_rounded, size: 20),
+                            SizedBox(width: 8),
+                            Text('Eliminar'),
+                          ],
+                        ),
+                      ),
                     ],
+                    onSelected: (value) {
+                      switch (value) {
+                        case 'ver':
+                          viewUser(context, user);
+                          break;
+                        case 'editar':
+                          editUser(context, user);
+                          break;
+                        case 'eliminar':
+                          deleteUser(context, user);
+                          break;
+                      }
+                    },
                   ),
-                ),
-                const PopupMenuItem<String>(
-                  value: 'eliminar',
-                  child: Row(
-                    children: [
-                      Icon(Icons.delete_rounded, size: 20),
-                      SizedBox(width: 8),
-                      Text('Eliminar'),
-                    ],
-                  ),
-                ),
-              ],
-              onSelected: (value) {
-                switch (value) {
-                  case 'ver':
-                    viewUser(context, user);
-                    break;
-                  case 'editar':
-                    editUser(context, user);
-                    break;
-                  case 'eliminar':
-                    deleteUser(context, user);
-                    break;
-                }
+                  onTap: () {
+                    setState(() {
+                      _searchController.text = user.displayName;
+                      _showSuggestions = false;
+                    });
+                  },
+                );
               },
             ),
-            onTap: () {
-              setState(() {
-                _searchController.text = user.displayName;
-                _showSuggestions = false;
-              });
-            },
-          );
-        },
+    );
+  }
+
+  Widget _buildErrorWidget() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Ocurrió un error al cargar los usuarios'),
+          ElevatedButton(
+            onPressed: _fetchUsers,
+            child: Text('Reintentar'),
+          ),
+        ],
       ),
     );
   }
