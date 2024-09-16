@@ -19,7 +19,7 @@ class _SearchableUserListState extends State<SearchableUserList> {
   bool _showSuggestions = false;
   bool _isLoading = true;
   bool _hasError = false;
-  bool _mounted = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -32,54 +32,53 @@ class _SearchableUserListState extends State<SearchableUserList> {
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
     _searchController.dispose();
-    _mounted = false;
     super.dispose();
   }
 
   Future<void> _fetchUsers() async {
-    if (!_mounted) return;
+    if (!mounted) return;
 
     setState(() {
       _isLoading = true;
       _hasError = false;
+      _errorMessage = null;
     });
 
     try {
       final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final userData = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
+      if (user == null) {
+        throw Exception('Usuario no autenticado');
+      }
 
-        if (userData.data()?['role'] == 'Administrador') {
-          final usersSnapshot =
-              await FirebaseFirestore.instance.collection('users').get();
-          if (_mounted) {
-            setState(() {
-              _allUsers = usersSnapshot.docs
-                  .map((doc) => UserData.fromDocument(doc))
-                  .toList();
-              _filteredUsers = List.from(_allUsers);
-              _isLoading = false;
-            });
-          }
-        } else {
-          if (_mounted) {
-            setState(() {
-              _isLoading = false;
-              _hasError = true;
-            });
-          }
-        }
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userData.data()?['role'] != 'Administrador') {
+        throw Exception('Usuario no autorizado');
       }
+
+      final usersSnapshot =
+          await FirebaseFirestore.instance.collection('users').get();
+
+      if (!mounted) return;
+
+      setState(() {
+        _allUsers = usersSnapshot.docs
+            .map((doc) => UserData.fromDocument(doc))
+            .toList();
+        _filteredUsers = List.from(_allUsers);
+        _isLoading = false;
+      });
     } catch (e) {
-      if (_mounted) {
-        setState(() {
-          _isLoading = false;
-          _hasError = true;
-        });
-      }
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+        _errorMessage = e.toString();
+      });
     }
   }
 
@@ -102,15 +101,22 @@ class _SearchableUserListState extends State<SearchableUserList> {
       children: [
         _buildSearchField(),
         const SizedBox(height: 10),
-        _isLoading
-            ? CircularProgressIndicator()
-            : _hasError
-                ? _buildErrorWidget()
-                : _showSuggestions
-                    ? _buildSuggestionsList()
-                    : Container(),
+        _buildContent(),
       ],
     );
+  }
+
+  Widget _buildContent() {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_hasError) {
+      return _buildErrorWidget();
+    }
+    if (_showSuggestions) {
+      return _buildSuggestionsList();
+    }
+    return Container();
   }
 
   Widget _buildSearchField() {
@@ -154,14 +160,17 @@ class _SearchableUserListState extends State<SearchableUserList> {
         ],
       ),
       child: _filteredUsers.isEmpty
-          ? ListTile(
+          ? const ListTile(
               title: Text('No se encontraron usuarios'),
             )
           : ListView.separated(
               shrinkWrap: true,
-              itemCount: _filteredUsers.length > 5 ? 5 : _filteredUsers.length,
+              itemCount: _filteredUsers.length,
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
+                if (index >= _filteredUsers.length) {
+                  return null; // Evita errores de índice fuera de rango
+                }
                 final user = _filteredUsers[index];
                 return ListTile(
                   leading: CircleAvatar(
@@ -169,7 +178,9 @@ class _SearchableUserListState extends State<SearchableUserList> {
                         ? CachedNetworkImageProvider(user.photoUrl!)
                         : null,
                     child: user.photoUrl == null
-                        ? Text(user.displayName[0].toUpperCase())
+                        ? Text(user.displayName.isNotEmpty
+                            ? user.displayName[0].toUpperCase()
+                            : '?')
                         : null,
                   ),
                   title: Text(user.displayName),
@@ -239,10 +250,10 @@ class _SearchableUserListState extends State<SearchableUserList> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Ocurrió un error al cargar los usuarios'),
+          Text('Ocurrió un error al cargar los usuarios: $_errorMessage'),
           ElevatedButton(
             onPressed: _fetchUsers,
-            child: Text('Reintentar'),
+            child: const Text('Reintentar'),
           ),
         ],
       ),
