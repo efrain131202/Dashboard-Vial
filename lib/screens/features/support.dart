@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 
 class Support extends StatelessWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/features/users/user_list.dart';
@@ -65,7 +65,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
     if (_currentUserRole == null) {
       return const Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: CircularProgressIndicator()),
+        body: Center(child: Text('Cargando...')),
       );
     }
 
@@ -132,9 +132,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: _usersFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
+                  if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
@@ -147,9 +145,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
               FutureBuilder<List<Map<String, dynamic>>>(
                 future: _usersFuture,
                 builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (snapshot.hasError) {
+                  if (snapshot.hasError) {
                     return Center(child: Text('Error: ${snapshot.error}'));
                   } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                     return const Center(
@@ -173,9 +169,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _usersFuture,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('No hay datos disponibles.'));
@@ -187,9 +181,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _usersFuture,
           builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
+            if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const Center(child: Text('No hay datos disponibles.'));

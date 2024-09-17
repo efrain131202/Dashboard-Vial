@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 
 class UserList extends StatefulWidget {
@@ -97,7 +97,8 @@ class _UserListState extends State<UserList>
       future: _usersFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
+          // Retornar un texto simple en lugar del CircularProgressIndicator
+          return const Center(child: Text('Cargando...'));
         } else if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

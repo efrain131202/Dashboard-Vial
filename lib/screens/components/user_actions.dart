@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_details_screen.dart';
 import 'package:vial_dashboard/screens/components/user_edit_screen.dart';
 
@@ -70,40 +70,6 @@ Future<void> deleteUser(BuildContext context, UserData user) async {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error al eliminar al usuario: $e'),
-          duration: const Duration(seconds: 3),
-        ),
-      );
-    }
-  }
-}
-
-Future<void> createUser(BuildContext context) async {
-  final newUser = await Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const UserEditScreen(user: null),
-    ),
-  );
-
-  if (newUser != null) {
-    try {
-      await FirebaseFirestore.instance.collection('users').add({
-        'display_name': newUser.displayName,
-        'email': newUser.email,
-        'role': newUser.role,
-        'photo_url': newUser.photoUrl,
-        'created_time': FieldValue.serverTimestamp(),
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Usuario creado correctamente'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error al crear al usuario: $e'),
           duration: const Duration(seconds: 3),
         ),
       );

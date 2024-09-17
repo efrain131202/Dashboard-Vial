@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/features/categories/category_distribution_card.dart';
 import 'package:vial_dashboard/screens/features/categories/recent_categories_card.dart';
 import 'package:vial_dashboard/screens/features/categories/statistics_card.dart';
@@ -63,9 +63,8 @@ class _CategoriesState extends State<Categories> {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center();
             }
-
             if (!snapshot.hasData || snapshot.data == null) {
               return const Center(
                   child: Text('No se encontraron datos del usuario'));
@@ -240,9 +239,8 @@ class CategoryUsersScreen extends StatelessWidget {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center();
           }
-
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(
                 child: Text('No se encontraron usuarios para esta categoría'));

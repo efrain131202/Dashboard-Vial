@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 
 class CategoryDistributionCard extends StatelessWidget {
   final Map<String, int> serviceCount;

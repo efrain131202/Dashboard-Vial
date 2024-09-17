@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 
 class UserPercentageCard extends StatelessWidget {
   final List<UserData> users;

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 
 class UserActivityCard extends StatelessWidget {
   final List<Map<String, dynamic>> users;

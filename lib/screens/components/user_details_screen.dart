@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 
 class UserDetailsScreen extends StatelessWidget {
   final UserData user;
@@ -66,7 +66,7 @@ class UserDetailsScreen extends StatelessWidget {
                 width: 100,
                 height: 100,
                 placeholder: (context, url) =>
-                    const CircularProgressIndicator(),
+                    const Text('Cargando...'), // Mensaje de carga
                 errorWidget: (context, url, error) =>
                     const Icon(Icons.error, size: 50),
               )

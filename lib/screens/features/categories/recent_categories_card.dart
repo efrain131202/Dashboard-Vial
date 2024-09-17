@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 
 class RecentCategoriesCard extends StatefulWidget {
   final Function(String) onCategoryTap;
@@ -59,7 +59,13 @@ class _RecentCategoriesCardState extends State<RecentCategoriesCard> {
         border: Border.all(color: Colors.grey[300]!),
       ),
       child: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Padding(
+              padding: EdgeInsets.all(20),
+              child: Text(
+                'Cargando categorías...',
+                style: TextStyle(fontSize: 16, color: Colors.grey),
+              ),
+            )
           : Column(
               children: [
                 Padding(
@@ -85,22 +91,30 @@ class _RecentCategoriesCardState extends State<RecentCategoriesCard> {
                     ],
                   ),
                 ),
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: serviceCount.length,
-                  separatorBuilder: (context, index) =>
-                      const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final service = serviceCount.keys.toList()[index];
-                    final count = serviceCount[service]!;
-                    return _buildCategoryListTile({
-                      'name': service,
-                      'icon': _getIconForService(service),
-                      'userCount': count,
-                    });
-                  },
-                ),
+                serviceCount.isEmpty
+                    ? const Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          'No se encontraron categorías recientes.',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      )
+                    : ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: serviceCount.length,
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final service = serviceCount.keys.toList()[index];
+                          final count = serviceCount[service]!;
+                          return _buildCategoryListTile({
+                            'name': service,
+                            'icon': _getIconForService(service),
+                            'userCount': count,
+                          });
+                        },
+                      ),
               ],
             ),
     );

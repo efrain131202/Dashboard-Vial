@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
 
 class RecentUsersCard extends StatelessWidget {
@@ -170,9 +170,5 @@ class RecentUsersCard extends StatelessWidget {
         },
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
   }
 }

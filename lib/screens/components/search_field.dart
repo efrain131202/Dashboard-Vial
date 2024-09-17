@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 
 class SearchableUserList extends StatefulWidget {
   const SearchableUserList({super.key});
@@ -17,7 +17,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
   List<UserData> _allUsers = [];
   List<UserData> _filteredUsers = [];
   bool _showSuggestions = false;
-  bool _isLoading = true;
   bool _hasError = false;
   String? _errorMessage;
 
@@ -39,7 +38,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
     if (!mounted) return;
 
     setState(() {
-      _isLoading = true;
       _hasError = false;
       _errorMessage = null;
     });
@@ -69,13 +67,11 @@ class _SearchableUserListState extends State<SearchableUserList> {
             .map((doc) => UserData.fromDocument(doc))
             .toList();
         _filteredUsers = List.from(_allUsers);
-        _isLoading = false;
       });
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
-        _isLoading = false;
         _hasError = true;
         _errorMessage = e.toString();
       });
@@ -107,9 +103,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
   }
 
   Widget _buildContent() {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
     if (_hasError) {
       return _buildErrorWidget();
     }
@@ -169,7 +162,7 @@ class _SearchableUserListState extends State<SearchableUserList> {
               separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 if (index >= _filteredUsers.length) {
-                  return null; // Evita errores de índice fuera de rango
+                  return null;
                 }
                 final user = _filteredUsers[index];
                 return ListTile(

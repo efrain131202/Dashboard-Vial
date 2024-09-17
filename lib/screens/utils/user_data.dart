@@ -5,7 +5,7 @@ class UserData {
   final String displayName;
   final String email;
   final String role;
-  final DateTime? createdTime; // Ahora es nullable
+  final DateTime? createdTime;
   final String? photoUrl;
 
   UserData({
@@ -13,7 +13,7 @@ class UserData {
     required this.displayName,
     required this.email,
     required this.role,
-    this.createdTime, // Ya no es required
+    this.createdTime,
     this.photoUrl,
   });
 

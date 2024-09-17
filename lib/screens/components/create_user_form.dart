@@ -202,7 +202,8 @@ class _CreateUserFormState extends State<CreateUserForm> {
                           horizontal: 50, vertical: 15),
                     ),
                     child: _isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
+                        ? const Text(
+                            'Creando...') // Mensaje en lugar de animación
                         : const Text('Crear Cuenta',
                             style: TextStyle(color: Colors.white)),
                   ),

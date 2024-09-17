@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/features/dashboard/recent_users_card.dart';
 import 'package:vial_dashboard/screens/features/dashboard/user_percentage_card.dart';
 
@@ -62,12 +62,6 @@ class _DashboardState extends State<Dashboard> {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
-        }
-
         if (!snapshot.hasData || snapshot.data == null) {
           return const Scaffold(
             body: Center(child: Text('No se encontraron datos del usuario')),
@@ -101,9 +95,7 @@ class _DashboardState extends State<Dashboard> {
                 child: FutureBuilder<List<UserData>>(
                   future: _usersFuture,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
+                    if (snapshot.hasError) {
                       return Center(child: Text('Error: ${snapshot.error}'));
                     } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
                       return const Center(

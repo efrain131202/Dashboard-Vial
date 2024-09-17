@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:vial_dashboard/screens/components/constants.dart';
-import 'package:vial_dashboard/screens/components/user_data.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
+import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_edit_screen.dart';
 
 class Profile extends StatelessWidget {
@@ -20,7 +20,8 @@ class Profile extends StatelessWidget {
               .snapshots(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              // Reemplaza el CircularProgressIndicator con un mensaje de texto
+              return const Center(child: Text('Cargando perfil...'));
             }
 
             if (!snapshot.hasData || snapshot.data == null) {
