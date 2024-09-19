@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 
 void exitApp(BuildContext context) {
   showDialog(
@@ -17,7 +18,7 @@ void exitApp(BuildContext context) {
           children: [
             const Icon(
               Icons.exit_to_app_rounded,
-              color: Color(0xFF05A7A7),
+              color: primaryColor, // Sustituido
               size: 72,
             ),
             const SizedBox(height: 24),
@@ -62,7 +63,7 @@ void exitApp(BuildContext context) {
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: const Color(0xFF05A7A7),
+                    backgroundColor: primaryColor, // Sustituido
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(

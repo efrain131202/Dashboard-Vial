@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:vial_dashboard/screens/components/user_actions.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/utils/user_data.dart';
 
 class SearchableUserList extends StatefulWidget {
@@ -62,7 +63,12 @@ class _SearchableUserListState extends State<SearchableUserList> {
         _filteredUsers = List.from(_allUsers);
       });
     } catch (e) {
-      // Si ocurre un error, no se mostrará ningún mensaje.
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error al cargar usuarios: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -77,6 +83,19 @@ class _SearchableUserListState extends State<SearchableUserList> {
           .toList();
       _showSuggestions = query.isNotEmpty;
     });
+  }
+
+  Color _getBorderColor(String role) {
+    switch (role.toLowerCase()) {
+      case 'usuario':
+        return primaryColor;
+      case 'colaborador':
+        return secondaryColor;
+      case 'administrador':
+        return adminColor;
+      default:
+        return Colors.grey;
+    }
   }
 
   @override
@@ -128,14 +147,10 @@ class _SearchableUserListState extends State<SearchableUserList> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
+        border: Border.all(
+          color: Colors.grey[300]!,
+          width: 1,
+        ),
       ),
       child: _filteredUsers.isEmpty
           ? const ListTile(
@@ -150,19 +165,52 @@ class _SearchableUserListState extends State<SearchableUserList> {
                   return null;
                 }
                 final user = _filteredUsers[index];
+                final borderColor = _getBorderColor(user.role);
+
                 return ListTile(
-                  leading: CircleAvatar(
-                    backgroundImage: user.photoUrl != null
-                        ? CachedNetworkImageProvider(user.photoUrl!)
-                        : null,
-                    child: user.photoUrl == null
-                        ? Text(user.displayName.isNotEmpty
-                            ? user.displayName[0].toUpperCase()
-                            : '?')
-                        : null,
+                  leading: Container(
+                    padding: const EdgeInsets.all(1.5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: borderColor,
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: user.photoUrl != null
+                          ? CachedNetworkImageProvider(user.photoUrl!)
+                          : null,
+                      child: user.photoUrl == null
+                          ? Text(user.displayName.isNotEmpty
+                              ? user.displayName[0].toUpperCase()
+                              : '?')
+                          : null,
+                    ),
                   ),
                   title: Text(user.displayName),
-                  subtitle: Text(user.email),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user.email,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Color.fromARGB(255, 117, 117, 117),
+                        ),
+                      ),
+                      Text(
+                        user.role,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: borderColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                   trailing: PopupMenuButton<String>(
                     icon: const Icon(Icons.more_vert_rounded, size: 15),
                     itemBuilder: (context) => [

@@ -50,10 +50,10 @@ class UserPercentageCard extends StatelessWidget {
                     PieChartSectionData(
                       color: primaryColor,
                       value: userPercentage,
-                      title: 'Usuarios\n${userPercentage.toStringAsFixed(1)}%',
-                      radius: 100,
+                      title: '${userPercentage.toStringAsFixed(1)}%',
+                      radius: 110,
                       titleStyle: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -61,11 +61,10 @@ class UserPercentageCard extends StatelessWidget {
                     PieChartSectionData(
                       color: secondaryColor,
                       value: collaboratorPercentage,
-                      title:
-                          'Colaboradores\n${collaboratorPercentage.toStringAsFixed(1)}%',
-                      radius: 100,
+                      title: '${collaboratorPercentage.toStringAsFixed(1)}%',
+                      radius: 110,
                       titleStyle: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
@@ -73,18 +72,18 @@ class UserPercentageCard extends StatelessWidget {
                     PieChartSectionData(
                       color: adminColor,
                       value: adminPercentage,
-                      title:
-                          'Administradores\n${adminPercentage.toStringAsFixed(1)}%',
-                      radius: 100,
+                      title: '${adminPercentage.toStringAsFixed(1)}%',
+                      radius: 110,
                       titleStyle: const TextStyle(
-                        fontSize: 12,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ],
-                  sectionsSpace: 0,
-                  centerSpaceRadius: 50,
+                  sectionsSpace: 4,
+                  centerSpaceRadius: 40,
+                  startDegreeOffset: 30,
                 ),
               ),
             ),
