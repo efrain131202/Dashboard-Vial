@@ -96,13 +96,10 @@ class _UserListState extends State<UserList>
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: _usersFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          // Retornar un texto simple en lugar del CircularProgressIndicator
-          return const Center(child: Text('Cargando...'));
-        } else if (snapshot.hasError) {
+        if (snapshot.hasError) {
           return Center(child: Text('Error: ${snapshot.error}'));
         } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-          return const Center(child: Text('No se encontraron usuarios.'));
+          return const Center(child: Text(''));
         }
 
         final allUsers = snapshot.data!;
@@ -233,7 +230,7 @@ class _UserListState extends State<UserList>
             value: 'ver',
             child: Row(
               children: [
-                Icon(Icons.visibility, size: 20),
+                Icon(Icons.visibility_rounded, size: 20),
                 SizedBox(width: 8),
                 Text('Ver'),
               ],
@@ -243,7 +240,7 @@ class _UserListState extends State<UserList>
             value: 'editar',
             child: Row(
               children: [
-                Icon(Icons.edit, size: 20),
+                Icon(Icons.edit_rounded, size: 20),
                 SizedBox(width: 8),
                 Text('Editar'),
               ],
@@ -253,7 +250,7 @@ class _UserListState extends State<UserList>
             value: 'eliminar',
             child: Row(
               children: [
-                Icon(Icons.delete, size: 20),
+                Icon(Icons.delete_rounded, size: 20),
                 SizedBox(width: 8),
                 Text('Eliminar'),
               ],

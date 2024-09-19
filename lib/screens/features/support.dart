@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vial_dashboard/screens/utils/access_denied_page.dart';
 import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
 
@@ -7,31 +8,33 @@ class Support extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(kPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: kPadding),
-                _buildSubtitle(context),
-                const SizedBox(height: kPadding),
-                const SearchableUserList(),
-                const SizedBox(height: kPadding),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth > 900) {
-                      return _buildWideLayout();
-                    } else {
-                      return _buildNarrowLayout();
-                    }
-                  },
-                ),
-              ],
+    return withAdminAccess(
+      Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(kPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: kPadding),
+                  _buildSubtitle(context),
+                  const SizedBox(height: kPadding),
+                  const SearchableUserList(),
+                  const SizedBox(height: kPadding),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 900) {
+                        return _buildWideLayout();
+                      } else {
+                        return _buildNarrowLayout();
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

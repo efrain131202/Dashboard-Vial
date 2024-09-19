@@ -17,8 +17,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
   List<UserData> _allUsers = [];
   List<UserData> _filteredUsers = [];
   bool _showSuggestions = false;
-  bool _hasError = false;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -36,11 +34,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
 
   Future<void> _fetchUsers() async {
     if (!mounted) return;
-
-    setState(() {
-      _hasError = false;
-      _errorMessage = null;
-    });
 
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -69,12 +62,7 @@ class _SearchableUserListState extends State<SearchableUserList> {
         _filteredUsers = List.from(_allUsers);
       });
     } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _hasError = true;
-        _errorMessage = e.toString();
-      });
+      // Si ocurre un error, no se mostrará ningún mensaje.
     }
   }
 
@@ -103,9 +91,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
   }
 
   Widget _buildContent() {
-    if (_hasError) {
-      return _buildErrorWidget();
-    }
     if (_showSuggestions) {
       return _buildSuggestionsList();
     }
@@ -235,21 +220,6 @@ class _SearchableUserListState extends State<SearchableUserList> {
                 );
               },
             ),
-    );
-  }
-
-  Widget _buildErrorWidget() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Ocurrió un error al cargar los usuarios: $_errorMessage'),
-          ElevatedButton(
-            onPressed: _fetchUsers,
-            child: const Text('Reintentar'),
-          ),
-        ],
-      ),
     );
   }
 }

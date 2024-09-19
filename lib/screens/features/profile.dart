@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/utils/access_denied_page.dart';
 import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/components/user_edit_screen.dart';
@@ -10,50 +11,37 @@ class Profile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: StreamBuilder<DocumentSnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('users')
-              .doc(FirebaseAuth.instance.currentUser?.uid)
-              .snapshots(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // Reemplaza el CircularProgressIndicator con un mensaje de texto
-              return const Center(child: Text('Cargando perfil...'));
-            }
+    return withAdminAccess(
+      Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(FirebaseAuth.instance.currentUser?.uid)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text('Cargando perfil...'));
+              }
 
-            if (!snapshot.hasData || snapshot.data == null) {
-              return const Center(
-                  child: Text('No se encontraron datos del usuario'));
-            }
+              if (!snapshot.hasData || snapshot.data == null) {
+                return const Center(
+                    child: Text('No se encontraron datos del usuario'));
+              }
 
-            final userData = snapshot.data!.data() as Map<String, dynamic>?;
-            final userRole = userData?['role'];
+              final userData = snapshot.data!.data() as Map<String, dynamic>?;
 
-            if (userRole != 'Administrador') {
-              return const Center(
-                child: Text(
-                  'Acceso denegado. Solo los administradores pueden ver el contenido de la página',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
-                    color: primaryColor,
+              return Center(
+                child: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(kPadding),
+                    child: _buildUserProfile(context, userData),
                   ),
                 ),
               );
-            }
-
-            return Center(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.all(kPadding),
-                  child: _buildUserProfile(context, userData),
-                ),
-              ),
-            );
-          },
+            },
+          ),
         ),
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:vial_dashboard/screens/utils/access_denied_page.dart';
 import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
@@ -18,13 +18,12 @@ class Users extends StatefulWidget {
 class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late Future<List<Map<String, dynamic>>> _usersFuture;
-  String? _currentUserRole;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    _getCurrentUserRole();
+    _usersFuture = _fetchUsers();
   }
 
   @override
@@ -33,24 +32,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-  Future<void> _getCurrentUserRole() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final userData = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-      setState(() {
-        _currentUserRole = userData.data()?['role'];
-        _usersFuture = _fetchUsers();
-      });
-    }
-  }
-
   Future<List<Map<String, dynamic>>> _fetchUsers() async {
-    if (_currentUserRole != 'Administrador') {
-      return [];
-    }
     final usersSnapshot =
         await FirebaseFirestore.instance.collection('users').get();
     return usersSnapshot.docs.map((doc) {
@@ -62,53 +44,33 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUserRole == null) {
-      return const Scaffold(
+    return withAdminAccess(
+      Scaffold(
         backgroundColor: Colors.white,
-        body: Center(child: Text('Cargando...')),
-      );
-    }
-
-    if (_currentUserRole != 'Administrador') {
-      return const Scaffold(
-        body: Center(
-          child: Text(
-            'Acceso denegado. Solo los administradores pueden ver el contenido de la pagina',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: primaryColor,
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(kPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: kPadding),
-                _buildSubtitle(context),
-                const SizedBox(height: kPadding),
-                const SearchableUserList(),
-                const SizedBox(height: kPadding),
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    if (constraints.maxWidth > 900) {
-                      return _buildWideLayout();
-                    } else {
-                      return _buildNarrowLayout();
-                    }
-                  },
-                ),
-              ],
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(kPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(context),
+                  const SizedBox(height: kPadding),
+                  _buildSubtitle(context),
+                  const SizedBox(height: kPadding),
+                  const SearchableUserList(),
+                  const SizedBox(height: kPadding),
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      if (constraints.maxWidth > 900) {
+                        return _buildWideLayout();
+                      } else {
+                        return _buildNarrowLayout();
+                      }
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -120,9 +82,9 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
+        const Expanded(
           flex: 2,
-          child: UserList(currentUserRole: _currentUserRole!),
+          child: UserList(currentUserRole: 'Administrador'),
         ),
         const SizedBox(width: 20),
         Expanded(
@@ -164,7 +126,7 @@ class _UsersState extends State<Users> with SingleTickerProviderStateMixin {
   Widget _buildNarrowLayout() {
     return Column(
       children: [
-        UserList(currentUserRole: _currentUserRole!),
+        const UserList(currentUserRole: 'Administrador'),
         const SizedBox(height: 20),
         FutureBuilder<List<Map<String, dynamic>>>(
           future: _usersFuture,
