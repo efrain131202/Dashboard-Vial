@@ -20,24 +20,28 @@ class AdminAccessControl extends StatelessWidget {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const LoadingScreen();
-        }
-
-        if (!snapshot.hasData || snapshot.data == null) {
-          return _buildErrorScreen('No se encontraron datos del usuario');
-        }
-
-        final userData = snapshot.data!.data() as Map<String, dynamic>?;
-        final userRole = userData?['role'];
-
-        if (userRole != 'Administrador') {
-          return _buildAccessDeniedScreen();
-        }
-
-        return child;
+        return _buildContent(snapshot);
       },
     );
+  }
+
+  Widget _buildContent(AsyncSnapshot<DocumentSnapshot> snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const LoadingScreen();
+    }
+
+    if (!snapshot.hasData || snapshot.data == null) {
+      return _buildErrorScreen('No se encontraron datos del usuario');
+    }
+
+    final userData = snapshot.data!.data() as Map<String, dynamic>?;
+    final userRole = userData?['role'];
+
+    if (userRole != 'Administrador') {
+      return _buildAccessDeniedScreen();
+    }
+
+    return child;
   }
 
   Widget _buildErrorScreen(String message) {

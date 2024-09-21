@@ -18,7 +18,7 @@ void exitApp(BuildContext context) {
           children: [
             const Icon(
               Icons.exit_to_app_rounded,
-              color: primaryColor, // Sustituido
+              color: primaryColor,
               size: 72,
             ),
             const SizedBox(height: 24),
@@ -63,7 +63,7 @@ void exitApp(BuildContext context) {
                   },
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: primaryColor, // Sustituido
+                    backgroundColor: primaryColor,
                     padding: const EdgeInsets.symmetric(
                         horizontal: 24, vertical: 12),
                     shape: RoundedRectangleBorder(

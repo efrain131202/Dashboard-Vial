@@ -3,7 +3,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 import 'dart:io';
+import 'package:vial_dashboard/screens/components/preview_user.dart';
+import 'package:vial_dashboard/screens/utils/constants.dart';
 
 class CreateUserForm extends StatefulWidget {
   const CreateUserForm({super.key});
@@ -19,10 +22,11 @@ class _CreateUserFormState extends State<CreateUserForm> {
     'email': TextEditingController(),
     'password': TextEditingController(),
     'confirmPassword': TextEditingController(),
-    'phoneNumber': TextEditingController(),
     'shortDescription': TextEditingController(),
     'role': TextEditingController(),
   };
+
+  PhoneNumber _phoneNumber = PhoneNumber(isoCode: 'MX');
 
   bool _isLoading = false;
   File? _image;
@@ -37,9 +41,6 @@ class _CreateUserFormState extends State<CreateUserForm> {
   ];
   int _currentStep = 0;
 
-  static const Color primaryColor = Color(0xFF05A7A7);
-  static const Color secondaryColor = Color(0xFFF2877C);
-
   @override
   void dispose() {
     for (var controller in _controllers.values) {
@@ -50,56 +51,125 @@ class _CreateUserFormState extends State<CreateUserForm> {
 
   Future<void> _createUser() async {
     if (_formKey.currentState!.validate()) {
-      setState(() => _isLoading = true);
-      try {
-        UserCredential userCredential =
-            await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _controllers['email']!.text,
-          password: _controllers['password']!.text,
-        );
-
-        print("Usuario creado con ID: ${userCredential.user?.uid}");
-
-        String? photoUrl;
-        if (_image != null) {
-          photoUrl = await _uploadImage(_image!);
-        }
-
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userCredential.user?.uid)
-            .set({
-          'uid': userCredential.user?.uid,
-          'photo_url': photoUrl,
-          'display_name': _controllers['displayName']!.text,
-          'email': _controllers['email']!.text,
-          'phone_number': _controllers['phoneNumber']!.text,
-          'short_description': _controllers['shortDescription']!.text,
-          'role': _controllers['role']!.text,
-          'created_time': FieldValue.serverTimestamp(),
-          'last_active_time': FieldValue.serverTimestamp(),
-          'title': _selectedOptions,
-        });
-
-        print("Datos del usuario guardados en Firestore");
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                  'Usuario creado exitosamente. Por favor, inicia sesión.'),
+      if (_isFormComplete()) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => UserPreviewScreen(
+              userData: {
+                'displayName': _controllers['displayName']!.text,
+                'email': _controllers['email']!.text,
+                'phone_number': _phoneNumber.phoneNumber ?? '',
+                'shortDescription': _controllers['shortDescription']!.text,
+                'role': _controllers['role']!.text,
+              },
+              imageFile: _image,
+              selectedOptions: _selectedOptions,
+              onConfirm: () async {
+                Navigator.of(context).pop();
+                await _performUserCreation();
+              },
+              onEdit: () {
+                Navigator.of(context).pop();
+              },
             ),
-          );
-          Navigator.of(context).pushReplacementNamed('/signin');
-        }
-      } catch (e) {
-        print("Error detallado al crear usuario: $e");
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Error: $e')));
-      } finally {
-        setState(() => _isLoading = false);
+          ),
+        );
+      } else {
+        _showIncompleteFormSnackBar();
       }
+    } else {
+      _showIncompleteFormSnackBar();
     }
+  }
+
+  bool _isFormComplete() {
+    bool isComplete =
+        _controllers.values.every((controller) => controller.text.isNotEmpty);
+    isComplete = isComplete &&
+        _phoneNumber.phoneNumber != null &&
+        _phoneNumber.phoneNumber!.isNotEmpty;
+    if (_controllers['role']!.text == 'Colaborador') {
+      isComplete = isComplete && _selectedOptions.isNotEmpty;
+    }
+    isComplete = isComplete && _image != null;
+    return isComplete;
+  }
+
+  void _showIncompleteFormSnackBar() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Por favor, complete todos los campos del formulario.'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  Future<void> _performUserCreation() async {
+    setState(() => _isLoading = true);
+    try {
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _controllers['email']!.text,
+        password: _controllers['password']!.text,
+      );
+
+      String? photoUrl;
+      if (_image != null) {
+        photoUrl = await _uploadImage(_image!);
+      }
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userCredential.user?.uid)
+          .set({
+        'uid': userCredential.user?.uid,
+        'photo_url': photoUrl,
+        'display_name': _controllers['displayName']!.text,
+        'email': _controllers['email']!.text,
+        'phone_number': _phoneNumber.phoneNumber,
+        'short_description': _controllers['shortDescription']!.text,
+        'role': _controllers['role']!.text,
+        'created_time': FieldValue.serverTimestamp(),
+        'last_active_time': FieldValue.serverTimestamp(),
+        'title': _selectedOptions,
+      });
+
+      if (mounted) {
+        _showSuccessSnackBar(context);
+        Navigator.of(context).pushReplacementNamed('/signin');
+      }
+    } catch (e) {
+      print("Error detallado al crear usuario: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: $e')));
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showSuccessSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Row(
+          children: [
+            Icon(Icons.check_circle_rounded, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Usuario creado exitosamente. Por favor, inicia sesión.',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: primaryColor,
+        duration: const Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+    );
   }
 
   Future<String?> _uploadImage(File imageFile) async {
@@ -164,10 +234,20 @@ class _CreateUserFormState extends State<CreateUserForm> {
                         child: Stepper(
                           type: StepperType.horizontal,
                           currentStep: _currentStep,
-                          onStepContinue: () => setState(
-                              () => _currentStep < 4 ? _currentStep++ : null),
-                          onStepCancel: () => setState(
-                              () => _currentStep > 0 ? _currentStep-- : null),
+                          onStepContinue: () {
+                            setState(() {
+                              if (_currentStep < 4) {
+                                _currentStep++;
+                              }
+                            });
+                          },
+                          onStepCancel: () {
+                            setState(() {
+                              if (_currentStep > 0) {
+                                _currentStep--;
+                              }
+                            });
+                          },
                           controlsBuilder: (context, details) => Padding(
                             padding: const EdgeInsets.only(top: 16),
                             child: Row(
@@ -175,14 +255,14 @@ class _CreateUserFormState extends State<CreateUserForm> {
                                 if (_currentStep > 0)
                                   TextButton(
                                     onPressed: details.onStepCancel,
-                                    child: const Text('ATRÁS',
+                                    child: const Text('Atrás',
                                         style:
-                                            TextStyle(color: secondaryColor)),
+                                            TextStyle(color: Colors.black54)),
                                   ),
                                 if (_currentStep < 4)
                                   TextButton(
                                     onPressed: details.onStepContinue,
-                                    child: const Text('SIGUIENTE',
+                                    child: const Text('Siguiente',
                                         style: TextStyle(color: primaryColor)),
                                   ),
                               ],
@@ -194,19 +274,17 @@ class _CreateUserFormState extends State<CreateUserForm> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: _isLoading ? null : _createUser,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 50, vertical: 15),
+                  if (_currentStep == 4)
+                    ElevatedButton(
+                      onPressed: _createUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                      ),
+                      child: const Text('Ver Vista Previa',
+                          style: TextStyle(color: Colors.white)),
                     ),
-                    child: _isLoading
-                        ? const Text(
-                            'Creando...') // Mensaje en lugar de animación
-                        : const Text('Crear Cuenta',
-                            style: TextStyle(color: Colors.white)),
-                  ),
                 ],
               ),
             ),
@@ -228,7 +306,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
             obscureText: true),
       ]),
       _buildStep(2, [
-        _buildTextField('phoneNumber', 'Número de Teléfono'),
+        _buildPhoneNumberField(),
         _buildTextField('shortDescription', 'Breve Descripción'),
       ]),
       _buildStep(3, [
@@ -295,6 +373,48 @@ class _CreateUserFormState extends State<CreateUserForm> {
       onChanged: (newValue) =>
           setState(() => _controllers[key]!.text = newValue!),
       validator: (value) => value == null ? 'Campo requerido' : null,
+    );
+  }
+
+  Widget _buildPhoneNumberField() {
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: InternationalPhoneNumberInput(
+        onInputChanged: (PhoneNumber number) {
+          _phoneNumber = number;
+        },
+        selectorConfig: const SelectorConfig(
+          selectorType: PhoneInputSelectorType.DROPDOWN,
+        ),
+        ignoreBlank: false,
+        autoValidateMode: AutovalidateMode.onUserInteraction,
+        selectorTextStyle: const TextStyle(color: Colors.black),
+        initialValue: _phoneNumber,
+        textFieldController: TextEditingController(),
+        formatInput: true,
+        keyboardType:
+            const TextInputType.numberWithOptions(signed: true, decimal: true),
+        inputDecoration: const InputDecoration(
+          border: InputBorder.none,
+          hintText: 'Número de teléfono',
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        ),
+        onSaved: (PhoneNumber number) {
+          _phoneNumber = number;
+        },
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Por favor ingrese un número de teléfono';
+          }
+          if (value.length != 10) {
+            return 'El número debe tener 10 dígitos';
+          }
+          return null;
+        },
+      ),
     );
   }
 }
