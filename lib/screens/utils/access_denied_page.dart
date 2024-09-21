@@ -6,10 +6,12 @@ import 'package:vial_dashboard/screens/utils/loading_screen.dart';
 
 class AdminAccessControl extends StatelessWidget {
   final Widget child;
+  final int delaySeconds;
 
   const AdminAccessControl({
     super.key,
     required this.child,
+    this.delaySeconds = 3, // Añadimos un parámetro para controlar el retraso
   });
 
   @override
@@ -20,16 +22,20 @@ class AdminAccessControl extends StatelessWidget {
           .doc(FirebaseAuth.instance.currentUser?.uid)
           .snapshots(),
       builder: (context, snapshot) {
-        return _buildContent(snapshot);
+        return FutureBuilder(
+          future: Future.delayed(Duration(seconds: delaySeconds)),
+          builder: (context, _) {
+            if (_.connectionState != ConnectionState.done) {
+              return const LoadingScreen();
+            }
+            return _buildContent(snapshot);
+          },
+        );
       },
     );
   }
 
   Widget _buildContent(AsyncSnapshot<DocumentSnapshot> snapshot) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return const LoadingScreen();
-    }
-
     if (!snapshot.hasData || snapshot.data == null) {
       return _buildErrorScreen('No se encontraron datos del usuario');
     }
@@ -42,6 +48,13 @@ class AdminAccessControl extends StatelessWidget {
     }
 
     return child;
+  }
+
+  Widget withAdminAccess(Widget child, {int delaySeconds = 2}) {
+    return AdminAccessControl(
+      delaySeconds: delaySeconds,
+      child: child,
+    );
   }
 
   Widget _buildErrorScreen(String message) {

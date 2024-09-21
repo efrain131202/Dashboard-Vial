@@ -276,14 +276,23 @@ class _CreateUserFormState extends State<CreateUserForm> {
                   const SizedBox(height: 20),
                   if (_currentStep == 4)
                     ElevatedButton(
-                      onPressed: _createUser,
+                      onPressed: _isLoading ? null : _createUser,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: primaryColor,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 50, vertical: 15),
                       ),
-                      child: const Text('Ver Vista Previa',
-                          style: TextStyle(color: Colors.white)),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : const Text('Ver Vista Previa',
+                              style: TextStyle(color: Colors.white)),
                     ),
                 ],
               ),
@@ -327,7 +336,7 @@ class _CreateUserFormState extends State<CreateUserForm> {
       ]),
       _buildStep(4, [
         ElevatedButton(
-          onPressed: _pickImage,
+          onPressed: _isLoading ? null : _pickImage,
           style: ElevatedButton.styleFrom(backgroundColor: primaryColor),
           child: const Text(
             'Seleccionar imagen',
