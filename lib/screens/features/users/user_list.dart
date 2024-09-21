@@ -172,6 +172,7 @@ class _UserListState extends State<UserList>
       createdTime:
           (user['created_time'] as Timestamp?)?.toDate() ?? DateTime.now(),
       photoUrl: user['photo_url'],
+      phoneNumber: '',
     );
 
     return ListTile(

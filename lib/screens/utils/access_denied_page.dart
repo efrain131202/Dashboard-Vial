@@ -11,7 +11,7 @@ class AdminAccessControl extends StatelessWidget {
   const AdminAccessControl({
     super.key,
     required this.child,
-    this.delaySeconds = 3, // Añadimos un parámetro para controlar el retraso
+    this.delaySeconds = 3,
   });
 
   @override

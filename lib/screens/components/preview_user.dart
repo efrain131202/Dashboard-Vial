@@ -62,7 +62,7 @@ class UserPreviewScreen extends StatelessWidget {
                   ElevatedButton(
                     onPressed: onEdit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFF2877C),
+                      backgroundColor: Colors.black54,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20, vertical: 12),
                     ),
@@ -100,7 +100,7 @@ class UserPreviewScreen extends StatelessWidget {
       child: ClipOval(
         child: imageFile != null
             ? Image.file(imageFile!, fit: BoxFit.cover)
-            : const Icon(Icons.person, size: 60, color: Colors.grey),
+            : const Icon(Icons.person_rounded, size: 60, color: Colors.grey),
       ),
     );
   }

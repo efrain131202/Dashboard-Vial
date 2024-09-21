@@ -19,6 +19,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _roleController;
+  late TextEditingController _phoneController;
   File? _image;
   String? _photoUrl;
 
@@ -29,6 +30,8 @@ class _UserEditScreenState extends State<UserEditScreen> {
         TextEditingController(text: widget.user?.displayName ?? '');
     _emailController = TextEditingController(text: widget.user?.email ?? '');
     _roleController = TextEditingController(text: widget.user?.role ?? '');
+    _phoneController =
+        TextEditingController(text: widget.user?.phoneNumber ?? '');
     _photoUrl = widget.user?.photoUrl;
   }
 
@@ -37,6 +40,7 @@ class _UserEditScreenState extends State<UserEditScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _roleController.dispose();
+    _phoneController.dispose();
     super.dispose();
   }
 
@@ -73,11 +77,37 @@ class _UserEditScreenState extends State<UserEditScreen> {
       displayName: _nameController.text,
       email: _emailController.text,
       role: _roleController.text,
+      phoneNumber: _phoneController.text,
       photoUrl: _photoUrl,
       createdTime: widget.user?.createdTime ?? DateTime.now(),
     );
 
-    Navigator.of(context).pop(updatedUser);
+    // Mostrar ventana de confirmación
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirmar cambios'),
+          content:
+              const Text('¿Estás seguro de que deseas guardar los cambios?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop(updatedUser); // Guardar cambios
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -96,49 +126,55 @@ class _UserEditScreenState extends State<UserEditScreen> {
           ),
         ),
       ),
-      body: Center(
+      body: Scrollbar(
+        thumbVisibility: true,
+        trackVisibility: true,
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(kPadding),
-          child: Column(
-            children: [
-              _buildProfileImage(),
-              const SizedBox(height: kPadding),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Seleccionar imagen'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontSize: 16),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+          child: Center(
+            child: Column(
+              children: [
+                _buildProfileImage(),
+                const SizedBox(height: kPadding),
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: const Text('Seleccionar imagen'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontSize: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: kPadding),
-              _buildTextField(_nameController, 'Nombre'),
-              const SizedBox(height: kPadding),
-              _buildTextField(_emailController, 'Correo electrónico'),
-              const SizedBox(height: kPadding),
-              _buildTextField(_roleController, 'Rol'),
-              const SizedBox(height: kPadding * 2),
-              ElevatedButton(
-                onPressed: _saveUser,
-                child: Text(widget.user == null ? 'Crear' : 'Guardar'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontSize: 16),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                const SizedBox(height: kPadding),
+                _buildTextField(_nameController, 'Nombre'),
+                const SizedBox(height: kPadding),
+                _buildTextField(_emailController, 'Correo electrónico'),
+                const SizedBox(height: kPadding),
+                _buildTextField(_roleController, 'Rol'),
+                const SizedBox(height: kPadding),
+                _buildTextField(_phoneController, 'Número de teléfono'),
+                const SizedBox(height: kPadding * 2),
+                ElevatedButton(
+                  onPressed: _saveUser,
+                  child: Text(widget.user == null ? 'Crear' : 'Guardar'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontSize: 16),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 24),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -149,6 +149,7 @@ class Profile extends StatelessWidget {
       createdTime:
           (userData['created_time'] as Timestamp?)?.toDate() ?? DateTime.now(),
       photoUrl: userData['photo_url'] ?? '',
+      phoneNumber: '',
     );
 
     final result = await Navigator.push(

@@ -41,6 +41,11 @@ class UserDetailsScreen extends StatelessWidget {
               const SizedBox(height: kPadding),
               _buildInfoBox(
                   'Rol', user.role.isNotEmpty ? user.role : 'Sin rol'),
+              _buildInfoBox(
+                  'Teléfono',
+                  user.phoneNumber.isNotEmpty
+                      ? user.phoneNumber
+                      : 'No disponible'),
               _buildInfoBox('Creado', _formatDate(user.createdTime)),
             ],
           ),

@@ -245,6 +245,7 @@ class CategoryUsersScreen extends StatelessWidget {
                         createdTime:
                             (userData['created_time'] as Timestamp).toDate(),
                         photoUrl: userData['photo_url'],
+                        phoneNumber: '',
                       );
                       switch (result) {
                         case 'ver':

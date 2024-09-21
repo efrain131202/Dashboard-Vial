@@ -7,6 +7,7 @@ class UserData {
   final String role;
   final DateTime? createdTime;
   final String? photoUrl;
+  final String phoneNumber;
 
   UserData({
     required this.uid,
@@ -15,6 +16,7 @@ class UserData {
     required this.role,
     this.createdTime,
     this.photoUrl,
+    required this.phoneNumber,
   });
 
   factory UserData.fromDocument(DocumentSnapshot doc) {
@@ -28,6 +30,7 @@ class UserData {
           ? (data['created_time'] as Timestamp).toDate()
           : null,
       photoUrl: data['photo_url'],
+      phoneNumber: data['phone_number'] ?? '',
     );
   }
 }
