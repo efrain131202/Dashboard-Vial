@@ -3,20 +3,20 @@ import 'dart:io';
 import 'package:vial_dashboard/screens/utils/constants.dart';
 
 class UserPreviewScreen extends StatelessWidget {
-  final Map<String, String> userData;
+  final Map<String, dynamic> userData;
   final File? imageFile;
   final List<String> selectedOptions;
   final VoidCallback onConfirm;
   final VoidCallback onEdit;
 
   const UserPreviewScreen({
-    Key? key,
+    super.key,
     required this.userData,
     this.imageFile,
     required this.selectedOptions,
     required this.onConfirm,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -41,18 +41,16 @@ class UserPreviewScreen extends StatelessWidget {
             children: [
               _buildProfileImage(),
               const SizedBox(height: kPadding),
-              _buildUserInfo(userData['displayName'] ?? '', 'Sin nombre', 22,
-                  FontWeight.bold),
+              _buildUserInfo(
+                  userData['displayName'], 'Sin nombre', 22, FontWeight.bold),
               const SizedBox(height: 4),
-              _buildUserInfo(userData['email'] ?? '', 'Email no disponible', 16,
+              _buildUserInfo(userData['email'], 'Email no disponible', 16,
                   FontWeight.normal,
                   color: Colors.grey[600]),
               const SizedBox(height: kPadding),
-              _buildInfoBox('Rol', userData['role'] ?? 'Sin rol'),
-              _buildInfoBox(
-                  'Teléfono', userData['phoneNumber'] ?? 'No disponible'),
-              _buildInfoBox('Descripción',
-                  userData['shortDescription'] ?? 'Sin descripción'),
+              _buildInfoBox('Rol', userData['role']),
+              _buildInfoBox('Teléfono', userData['phone_number']),
+              _buildInfoBox('Descripción', userData['shortDescription']),
               if (userData['role'] == 'Colaborador')
                 _buildInfoBox('Servicios', selectedOptions.join(', ')),
               const SizedBox(height: kPadding),
@@ -61,21 +59,15 @@ class UserPreviewScreen extends StatelessWidget {
                 children: [
                   ElevatedButton(
                     onPressed: onEdit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black54,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                    ),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.grey),
                     child: const Text('Editar',
                         style: TextStyle(color: Colors.white)),
                   ),
                   ElevatedButton(
                     onPressed: onConfirm,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
-                    ),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: primaryColor),
                     child: const Text('Confirmar',
                         style: TextStyle(color: Colors.white)),
                   ),
@@ -90,8 +82,8 @@ class UserPreviewScreen extends StatelessWidget {
 
   Widget _buildProfileImage() {
     return Container(
-      width: 120,
-      height: 120,
+      width: 104,
+      height: 104,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
@@ -99,8 +91,8 @@ class UserPreviewScreen extends StatelessWidget {
       ),
       child: ClipOval(
         child: imageFile != null
-            ? Image.file(imageFile!, fit: BoxFit.cover)
-            : const Icon(Icons.person_rounded, size: 60, color: Colors.grey),
+            ? Image.file(imageFile!, fit: BoxFit.cover, width: 100, height: 100)
+            : const Icon(Icons.person, size: 50, color: Colors.grey),
       ),
     );
   }

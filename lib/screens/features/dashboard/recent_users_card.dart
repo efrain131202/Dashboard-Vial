@@ -74,6 +74,7 @@ class RecentUsersCard extends StatelessWidget {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       leading: Container(
+        padding: const EdgeInsets.all(2),
         width: 50,
         height: 50,
         decoration: BoxDecoration(

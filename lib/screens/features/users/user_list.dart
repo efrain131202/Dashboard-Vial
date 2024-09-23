@@ -176,8 +176,9 @@ class _UserListState extends State<UserList>
     );
 
     return ListTile(
-      contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       leading: Container(
+        padding: const EdgeInsets.all(2),
         width: 50,
         height: 50,
         decoration: BoxDecoration(
@@ -208,14 +209,15 @@ class _UserListState extends State<UserList>
       ),
       title: Text(
         user['display_name'] ?? 'Nombre desconocido',
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
       ),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             user['email'] ?? 'Email desconocido',
-            style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            style: const TextStyle(
+                fontSize: 12, color: Color.fromARGB(255, 117, 117, 117)),
           ),
           Text(
             user['role'] ?? 'Rol desconocido',

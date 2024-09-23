@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:vial_dashboard/screens/components/exit_app.dart';
 import 'package:vial_dashboard/screens/features/categories.dart';
 import 'package:vial_dashboard/screens/features/dashboard.dart';
+import 'package:vial_dashboard/screens/features/messages.dart';
 import 'package:vial_dashboard/screens/features/profile.dart';
-import 'package:vial_dashboard/screens/features/support.dart';
 import 'package:vial_dashboard/screens/features/users.dart';
 
 class HomePage extends StatefulWidget {
@@ -21,7 +21,7 @@ class HomePageState extends State<HomePage> {
     NavItem(icon: Icons.dashboard_rounded, title: 'Panel'),
     NavItem(icon: Icons.people_alt_rounded, title: 'Usuarios'),
     NavItem(icon: Icons.business_rounded, title: 'Categorías'),
-    NavItem(icon: Icons.forum_rounded, title: 'Soporte'),
+    NavItem(icon: Icons.forum_rounded, title: 'Mensajería'),
     NavItem(icon: Icons.account_circle_rounded, title: 'Perfil'),
   ];
 
@@ -162,7 +162,7 @@ class HomePageState extends State<HomePage> {
       case 2:
         return const Categories();
       case 3:
-        return const Support();
+        return const MessagingDashboard();
       case 4:
         return const Profile();
       default:

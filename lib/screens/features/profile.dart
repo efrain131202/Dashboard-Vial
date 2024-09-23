@@ -64,9 +64,10 @@ class Profile extends StatelessWidget {
         ),
         const SizedBox(height: kPadding),
         Container(
+          padding: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(color: primaryColor, width: 2),
+            border: Border.all(color: primaryColor, width: 3),
           ),
           child: CircleAvatar(
             radius: 50,
