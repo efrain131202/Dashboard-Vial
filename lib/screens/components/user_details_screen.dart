@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart';
 import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/utils/user_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserDetailsScreen extends StatelessWidget {
   final UserData user;
@@ -47,6 +48,8 @@ class UserDetailsScreen extends StatelessWidget {
                       ? user.phoneNumber
                       : 'No disponible'),
               _buildInfoBox('Creado', _formatDate(user.createdTime)),
+              if (user.role.toLowerCase() == 'usuario')
+                _buildVehiclesList(user.uid),
             ],
           ),
         ),
@@ -70,8 +73,7 @@ class UserDetailsScreen extends StatelessWidget {
                 fit: BoxFit.cover,
                 width: 100,
                 height: 100,
-                placeholder: (context, url) =>
-                    const Text('Cargando...'), // Mensaje de carga
+                placeholder: (context, url) => const Text('Cargando...'),
                 errorWidget: (context, url, error) =>
                     const Icon(Icons.error, size: 50),
               )
@@ -125,5 +127,87 @@ class UserDetailsScreen extends StatelessWidget {
   String _formatDate(DateTime? date) {
     if (date == null) return 'Fecha desconocida';
     return DateFormat('dd/MM/yyyy HH:mm').format(date.toLocal());
+  }
+
+  Widget _buildVehiclesList(String userId) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .collection('vehicles')
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return _buildInfoBox('Vehículos', 'Error al cargar vehículos');
+        }
+
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+
+        final vehicles = snapshot.data?.docs ?? [];
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const SizedBox(height: kPadding),
+            const Text(
+              'Vehículos',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: kPadding / 2),
+            if (vehicles.isEmpty)
+              _buildInfoBox('Vehículos', 'No hay vehículos registrados')
+            else
+              ...vehicles.map((vehicle) => _buildVehicleCard(vehicle)),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildVehicleCard(DocumentSnapshot vehicle) {
+    final data = vehicle.data() as Map<String, dynamic>;
+    return Container(
+      width: 250,
+      margin: const EdgeInsets.only(bottom: kPadding / 2),
+      padding: const EdgeInsets.all(kPadding / 2),
+      decoration: BoxDecoration(
+        border: Border.all(color: primaryColor.withOpacity(0.5)),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildVehicleInfo('Marca', data['make']),
+          _buildVehicleInfo('Modelo', data['model']),
+          _buildVehicleInfo('Año', data['year']),
+          _buildVehicleInfo('Color', data['color']),
+          _buildVehicleInfo('Placa', data['plate']),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVehicleInfo(String label, dynamic value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            '$label:',
+            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+          ),
+          Text(
+            value?.toString() ?? 'N/A',
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    );
   }
 }
