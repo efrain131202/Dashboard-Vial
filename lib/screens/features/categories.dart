@@ -4,11 +4,10 @@ import 'package:vial_dashboard/screens/utils/constants.dart';
 import 'package:vial_dashboard/screens/components/create_user_form.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:vial_dashboard/screens/components/search_field.dart';
-import 'package:vial_dashboard/screens/components/user_actions.dart';
-import 'package:vial_dashboard/screens/utils/user_data.dart';
 import 'package:vial_dashboard/screens/features/categories/category_distribution_card.dart';
 import 'package:vial_dashboard/screens/features/categories/recent_categories_card.dart';
 import 'package:vial_dashboard/screens/features/categories/statistics_card.dart';
+import 'package:vial_dashboard/screens/features/categories/category_users_screen.dart';
 
 class Categories extends StatefulWidget {
   const Categories({super.key});
@@ -185,102 +184,6 @@ class _CategoriesState extends State<Categories> {
     return Text(
       'Aquí puedes gestionar todas las categorías disponibles',
       style: TextStyle(color: Colors.grey[600]),
-    );
-  }
-}
-
-class CategoryUsersScreen extends StatelessWidget {
-  final String category;
-
-  const CategoryUsersScreen({super.key, required this.category});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Usuarios de $category'),
-        backgroundColor: primaryColor,
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .where('role', isEqualTo: 'Colaborador')
-            .where('title', arrayContains: category)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center();
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-                child: Text('No se encontraron usuarios para esta categoría'));
-          }
-
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              final userData =
-                  snapshot.data!.docs[index].data() as Map<String, dynamic>;
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                child: ListTile(
-                  leading: CircleAvatar(
-                    backgroundColor: primaryColor,
-                    child: Text(
-                      userData['display_name']?.substring(0, 1).toUpperCase() ??
-                          '?',
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ),
-                  title: Text(userData['display_name'] ?? 'Usuario sin nombre'),
-                  subtitle: Text(userData['email'] ?? 'Sin correo electrónico'),
-                  trailing: PopupMenuButton<String>(
-                    icon: const Icon(Icons.more_vert_rounded, size: 15),
-                    onSelected: (String result) {
-                      final user = UserData(
-                        uid: snapshot.data!.docs[index].id,
-                        displayName: userData['display_name'] ?? '',
-                        email: userData['email'] ?? '',
-                        role: userData['role'] ?? '',
-                        createdTime:
-                            (userData['created_time'] as Timestamp).toDate(),
-                        photoUrl: userData['photo_url'],
-                        phoneNumber: '',
-                      );
-                      switch (result) {
-                        case 'ver':
-                          viewUser(context, user);
-                          break;
-                        case 'editar':
-                          editUser(context, user);
-                          break;
-                        case 'eliminar':
-                          deleteUser(context, user);
-                          break;
-                      }
-                    },
-                    itemBuilder: (BuildContext context) =>
-                        <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
-                        value: 'ver',
-                        child: Text('Ver'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'editar',
-                        child: Text('Editar'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'eliminar',
-                        child: Text('Eliminar'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
-      ),
     );
   }
 }
