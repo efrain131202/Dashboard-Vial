@@ -34,3 +34,67 @@ class UserData {
     );
   }
 }
+
+class ChatData {
+  final String groupChatId;
+  final String lastMessage;
+  final String lastMessageSentBy;
+  final DateTime? lastMessageTime;
+  final String userA;
+  final String userB;
+  final List<String> users;
+
+  ChatData({
+    required this.groupChatId,
+    required this.lastMessage,
+    required this.lastMessageSentBy,
+    this.lastMessageTime,
+    required this.userA,
+    required this.userB,
+    required this.users,
+  });
+
+  factory ChatData.fromDocument(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return ChatData(
+      groupChatId: data['group_chat_id'] ?? '',
+      lastMessage: data['last_message'] ?? '',
+      lastMessageSentBy: data['last_message_sent_by'] ?? '',
+      lastMessageTime: data['last_message_time'] != null
+          ? (data['last_message_time'] as Timestamp).toDate()
+          : null,
+      userA: data['user_a'] ?? '',
+      userB: data['user_b'] ?? '',
+      users: List<String>.from(data['users'] ?? []),
+    );
+  }
+}
+
+class ChatMessage {
+  final String chatId;
+  final String text;
+  final String? imageUrl;
+  final DateTime? timestamp;
+  final String userId;
+
+  ChatMessage({
+    required this.chatId,
+    required this.text,
+    this.imageUrl,
+    this.timestamp,
+    required this.userId,
+  });
+
+  factory ChatMessage.fromDocument(DocumentSnapshot doc) {
+    Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+    return ChatMessage(
+      chatId: data['chat'] ?? '',
+      text: data['text'] ?? '',
+      imageUrl: data['image'],
+      timestamp: data['timestamp'] != null
+          ? (data['timestamp'] as Timestamp).toDate()
+          : null,
+      userId: data['user'] ?? '',
+    );
+  }
+}
